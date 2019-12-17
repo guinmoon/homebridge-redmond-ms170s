@@ -1,0 +1,21 @@
+{
+    "bridge": {
+        "name": "HomeBridge",
+        "username": "A6:22:4D:A3:DD:32",
+        "port": 51826,
+        "pin": "111-11-111"
+    },
+    "accessories": [
+        {
+            "accessory": "ms170s",
+            "name": "Kettle",
+            "mac": "C8:54:A9:29:1B:7F",
+            "chMin": 40,
+            "chMax": 100,
+            "minStep": 5
+        }
+    ],
+    "platforms": [
+        
+    ]
+}
