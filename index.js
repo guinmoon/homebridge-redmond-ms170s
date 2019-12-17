@@ -41,7 +41,7 @@ function Boiler(log, config) {
 
 Boiler.prototype = {
     identify: function(callback) {
-        this.log("Identify requested!");
+        this.log("Identify requested.");
         callback();
     },
 
