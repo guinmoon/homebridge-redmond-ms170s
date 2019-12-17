@@ -34,6 +34,9 @@ function Kettle(log, config) {
     this.currentTemperature = 0;
     this.targetTemperature = 0;
 
+    this.pollInterval = config.pollInterval || 2000;
+    this.pollingWhenOn = config.pollingWhenOn || false;
+    this.pollingEnabled = false;
 }
 
 Kettle.prototype = {
@@ -52,14 +55,20 @@ Kettle.prototype = {
         callback(error, res_data);
         this._ms170sRequest(parameters,
             function (error, responseBody) {
-                //console.log(responseBody);
                 if (responseBody.status == "ok") {
-                    if(parameters.action!="status")
+                    if (parameters.action != "status")
                         responseBody.currentHeatingCoolingState = 1;
-                    if (parameters.action == "off")
+                    if (parameters.action == "off") {
+                        this.pollingEnabled = false;
                         responseBody.currentHeatingCoolingState = 0;
+                    }
                     if (parameters.action == "boil")
                         responseBody.targetTemperature = 100;
+                    if (parameters.action == "boil" || parameters.action == "heat") {
+                        if (this.pollingWhenOn) {
+                            this.pollingEnabled = true;
+                        }
+                    }
                     this.updateValues(responseBody);
                 }
             }.bind(this)
@@ -125,15 +134,12 @@ Kettle.prototype = {
         var parameters = {};
         parameters.action = "status";
         parameters.mac = this.mac;
-        this.updateDevice(
-            parameters,
+        this.updateDevice(parameters,
             function (error, responseBody) {
                 if (error) {
                     this.log.warn("Error getting status: %s", error.message);
                     this.chService
-                        .getCharacteristic(
-                            Characteristic.CurrentHeatingCoolingState
-                        )
+                        .getCharacteristic(Characteristic.CurrentHeatingCoolingState)
                         .updateValue(new Error("Polling failed"));
                     callback(error);
                 } else {
@@ -213,9 +219,6 @@ Kettle.prototype = {
                 minValue: this.chMin,
                 maxValue: this.chMax,
                 minStep: this.minStep
-                // minValue: 40,
-                // maxValue: 100,
-                // minStep: 5
             });
 
         this.chService
@@ -229,11 +232,19 @@ Kettle.prototype = {
         var services = [this.informationService, this.chService];
 
         // this._getStatus(function() {});
-        // setInterval(
-        //     function() {
-        //         this._getStatus(function() {});
-        //     }.bind(this),1000
-        // );
+        setInterval(
+            function () {
+                if (this.pollingEnabled) {
+                    this.log.debug("******Polling*****");
+                    var parameters = {};
+                    parameters.action = "status";
+                    parameters.mac = this.mac;
+                    this.updateDevice(parameters, function () {
+
+                    });
+                }
+            }.bind(this), this.pollInterval
+        );
         return services;
     }
 };

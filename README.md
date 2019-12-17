@@ -18,7 +18,9 @@
       "mac": "C8:54:A9:29:1B:8A",
       "chMin": 40,
       "chMax": 100,
-      "minStep": 5
+      "minStep": 5,
+      "pollingWhenOn": true,
+      "pollInterval": 2000
     }
 ]
 ```
@@ -35,3 +37,5 @@
 | `model` _(optional)_ | Appears under "Model" for your accessory in the Home app |
 | `serial` _(optional)_ | Appears under "Serial" for your accessory in the Home app |
 | `manufacturer` _(optional)_ | Appears under "Manufacturer" for your accessory in the Home app |
+| `pollingWhenOn` _(optional)_ | Polling device while boil or heat |
+| `pollInterval` _(optional)_ |	Time (in seconds) between device polls
