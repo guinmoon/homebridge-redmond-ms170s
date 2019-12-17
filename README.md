@@ -38,4 +38,4 @@
 | `serial` _(optional)_ | Appears under "Serial" for your accessory in the Home app |
 | `manufacturer` _(optional)_ | Appears under "Manufacturer" for your accessory in the Home app |
 | `pollingWhenOn` _(optional)_ | Polling device while boil or heat |
-| `pollInterval` _(optional)_ |	Time (in seconds) between device polls
+| `pollInterval` _(optional)_ |	Time (in milliseconds) between device polls

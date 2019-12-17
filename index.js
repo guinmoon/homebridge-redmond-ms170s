@@ -11,7 +11,6 @@ module.exports = function (homebridge) {
 };
 
 class _Ms170sEmitter extends EventEmitter { }
-
 const _ms170sEmitter = new _Ms170sEmitter();
 
 function Kettle(log, config) {
@@ -232,7 +231,6 @@ Kettle.prototype = {
 
         var services = [this.informationService, this.chService];
 
-        // this._getStatus(function() {});
         setInterval(
             function () {
                 if (this.pollingEnabled) {
