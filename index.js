@@ -45,13 +45,14 @@ Kettle.prototype = {
         callback();
     },
 
-    updateDevice: function (parameters, callback) {
+    deviceRequest: function (parameters, callback) {
         error = undefined;
         var res_data = {};
         res_data.currentHeatingCoolingState = this.currentHeatingCoolingState;
         res_data.targetHeatingCoolingState = this.targetHeatingCoolingState;
         res_data.currentTemperature = this.currentTemperature;
         res_data.targetTemperature = this.targetTemperature;
+        res_data.status = "ok";
         callback(error, res_data);
         this._ms170sRequest(parameters,
             function (error, responseBody) {
@@ -134,7 +135,7 @@ Kettle.prototype = {
         var parameters = {};
         parameters.action = "status";
         parameters.mac = this.mac;
-        this.updateDevice(parameters,
+        this.deviceRequest(parameters,
             function (error, responseBody) {
                 if (error) {
                     this.log.warn("Error getting status: %s", error.message);
@@ -160,10 +161,10 @@ Kettle.prototype = {
         }
         parameters.mac = this.mac;
         this.log.debug("CH | Setting targetHeatingCoolingState");
-        this.updateDevice(parameters,
-            function (error, res_data) {
+        this.deviceRequest(parameters,
+            function (error, res_data) {               
                 if (res_data.status != "ok") {
-                    this.log.warn("CH | Error setting targetHeatingCoolingState: %s", res_data.statu);
+                    this.log.warn("CH | Error setting targetHeatingCoolingState: %s", res_data.status);
                     callback(error);
                 } else {
                     this.log("CH | Set targetHeatingCoolingState to: %s", value);
@@ -179,7 +180,7 @@ Kettle.prototype = {
         parameters.temperature = value;
         parameters.mac = this.mac;
         this.log.debug("CH | Setting targetTemperature");
-        this.updateDevice(parameters,
+        this.deviceRequest(parameters,
             function (error, res_data) {
                 if (res_data.status != "ok") {
                     this.log.warn("CH | Error setting targetTemperature: %s", res_data.status);
@@ -239,7 +240,7 @@ Kettle.prototype = {
                     var parameters = {};
                     parameters.action = "status";
                     parameters.mac = this.mac;
-                    this.updateDevice(parameters, function () {
+                    this.deviceRequest(parameters, function () {
 
                     });
                 }
