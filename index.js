@@ -1,19 +1,20 @@
 const EventEmitter = require("events");
-var Service, Characteristic;
 const packageJson = require("./package.json");
 var ms170s = require("./rk-ms170s.js");
 
-module.exports = function(homebridge) {
+var Service, Characteristic;
+
+module.exports = function (homebridge) {
     Service = homebridge.hap.Service;
     Characteristic = homebridge.hap.Characteristic;
-    homebridge.registerAccessory("homebridge-r4s", "ms170s", Boiler);
+    homebridge.registerAccessory("homebridge-r4s", "ms170s", Kettle);
 };
 
-class _Ms170sEmitter extends EventEmitter {}
+class _Ms170sEmitter extends EventEmitter { }
 
 const _ms170sEmitter = new _Ms170sEmitter();
 
-function Boiler(log, config) {
+function Kettle(log, config) {
     this.log = log;
     this.name = config.name;
     this.manufacturer = config.manufacturer || packageJson.author.name;
@@ -35,13 +36,13 @@ function Boiler(log, config) {
 
 }
 
-Boiler.prototype = {
-    identify: function(callback) {
+Kettle.prototype = {
+    identify: function (callback) {
         this.log("Identify requested.");
         callback();
     },
 
-    updateDevice: function(parameters, callback) {
+    updateDevice: function (parameters, callback) {
         error = undefined;
         var res_data = {};
         res_data.currentHeatingCoolingState = this.currentHeatingCoolingState;
@@ -52,7 +53,7 @@ Boiler.prototype = {
             callback(error, res_data);
             this._ms170sRequest(
                 parameters,
-                function(error, responseBody) {
+                function (error, responseBody) {
                     console.log(responseBody);
                     this.updateValues(responseBody);
                 }.bind(this)
@@ -66,7 +67,7 @@ Boiler.prototype = {
             callback(error, res_data);
             this._ms170sRequest(
                 parameters,
-                function(error, responseBody) {
+                function (error, responseBody) {
                     if (responseBody.status == "ok") {
                         responseBody.currentHeatingCoolingState = 1;
                         if (parameters.action == "off")
@@ -80,18 +81,15 @@ Boiler.prototype = {
         }
     },
 
-    _ms170sRequest: function(parameters, callback) {
+    _ms170sRequest: function (parameters, callback) {
         this.log.debug(parameters);
         var res_data = {};
         error = undefined;
         if (parameters.action == "status") {
             ms170s.ms170s_run(parameters, _ms170sEmitter);
-            _ms170sEmitter.on("data_ok", function(data) {
+            _ms170sEmitter.on("data_ok", function (data) {
                 res_data = data;
-                if (
-                    res_data.currentHeatingCoolingState == 1 &&
-                    res_data.targetTemperature == "none"
-                )
+                if (res_data.currentHeatingCoolingState == 1 && res_data.targetTemperature == "none")
                     res_data.targetTemperature = 100; //Boil mode
                 _ms170sEmitter.removeAllListeners();
                 callback(error, res_data);
@@ -99,7 +97,7 @@ Boiler.prototype = {
         }
         if (parameters.action == "off" || parameters.action == "boil") {
             ms170s.ms170s_run(parameters, _ms170sEmitter);
-            _ms170sEmitter.on("data_ok", function(data) {
+            _ms170sEmitter.on("data_ok", function (data) {
                 res_data = data;
                 _ms170sEmitter.removeAllListeners();
                 callback(error, res_data);
@@ -108,12 +106,12 @@ Boiler.prototype = {
         if (parameters.action == "heat") {
             parameters.action = "off";
             ms170s.ms170s_run(parameters, _ms170sEmitter);
-            _ms170sEmitter.on("data_ok", function(data) {
+            _ms170sEmitter.on("data_ok", function (data) {
                 res_data = data;
                 _ms170sEmitter.removeAllListeners();
                 parameters.action = "heat";
                 ms170s.ms170s_run(parameters, _ms170sEmitter);
-                _ms170sEmitter.on("data_ok", function(data) {
+                _ms170sEmitter.on("data_ok", function (data) {
                     res_data = data;
                     _ms170sEmitter.removeAllListeners();
                     callback(error, res_data);
@@ -122,54 +120,41 @@ Boiler.prototype = {
         }
     },
 
-    updateValues: function(responseBody) {
+    updateValues: function (responseBody) {
         this.log.debug("Device response: %s", JSON.stringify(responseBody));
-        var json = responseBody;
         this.chService
             .getCharacteristic(Characteristic.TargetTemperature)
-            .updateValue(json.targetTemperature);
-        this.log(
-            "CH | Updated TargetTemperature to: %s",
-            json.targetTemperature
-        );
+            .updateValue(responseBody.targetTemperature);
+        this.log("CH | Updated TargetTemperature to: %s",responseBody.targetTemperature);
         this.chService
             .getCharacteristic(Characteristic.CurrentTemperature)
-            .updateValue(json.currentTemperature);
-        this.log(
-            "CH | Updated CurrentTemperature to: %s",
-            json.currentTemperature
-        );
+            .updateValue(responseBody.currentTemperature);
+        this.log("CH | Updated CurrentTemperature to: %s",responseBody.currentTemperature);
         this.chService
             .getCharacteristic(Characteristic.TargetHeatingCoolingState)
-            .updateValue(json.targetHeatingCoolingState);
-        this.log(
-            "CH | Updated TargetHeatingCoolingState to: %s",
-            json.targetHeatingCoolingState
-        );
+            .updateValue(responseBody.targetHeatingCoolingState);
+        this.log("CH | Updated TargetHeatingCoolingState to: %s",responseBody.targetHeatingCoolingState);
         this.chService
             .getCharacteristic(Characteristic.CurrentHeatingCoolingState)
-            .updateValue(json.currentHeatingCoolingState);
-        this.log(
-            "CH | Updated CurrentHeatingCoolingState to: %s",
-            json.currentHeatingCoolingState
-        );
+            .updateValue(responseBody.currentHeatingCoolingState);
+        this.log("CH | Updated CurrentHeatingCoolingState to: %s",responseBody.currentHeatingCoolingState);
     },
 
-    _getStatus: function(callback) {
+    _getStatus: function (callback) {
         this.log.debug("Getting status");
         var parameters = {};
         parameters.action = "status";
         parameters.mac = this.mac;
         this.updateDevice(
             parameters,
-            function(error, responseBody) {
+            function (error, responseBody) {
                 if (error) {
                     this.log.warn("Error getting status: %s", error.message);
                     this.chService
                         .getCharacteristic(
                             Characteristic.CurrentHeatingCoolingState
                         )
-                        .updateValue(new Error("Polling failed")); 
+                        .updateValue(new Error("Polling failed"));
                     callback(error);
                 } else {
                     this.updateValues(responseBody);
@@ -179,7 +164,7 @@ Boiler.prototype = {
         );
     },
 
-    setTargetHeatingCoolingState: function(value, callback) {
+    setTargetHeatingCoolingState: function (value, callback) {
         var parameters = {};
         if (value == 1) {
             parameters.action = "boil";
@@ -189,40 +174,29 @@ Boiler.prototype = {
         }
         parameters.mac = this.mac;
         this.log.debug("CH | Setting targetHeatingCoolingState");
-        this.updateDevice(
-            parameters,
-            function(error, res_data) {
+        this.updateDevice(parameters,
+            function (error, res_data) {
                 if (res_data.status != "ok") {
-                    this.log.warn(
-                        "CH | Error setting targetHeatingCoolingState: %s",
-                        res_data.status
-                    );
+                    this.log.warn("CH | Error setting targetHeatingCoolingState: %s", res_data.statu);
                     callback(error);
                 } else {
-                    this.log(
-                        "CH | Set targetHeatingCoolingState to: %s",
-                        value
-                    );
+                    this.log("CH | Set targetHeatingCoolingState to: %s", value);
                     callback();
                 }
             }.bind(this)
         );
     },
 
-    setTargetTemperature: function(value, callback) {
+    setTargetTemperature: function (value, callback) {
         var parameters = {};
         parameters.action = "heat";
         parameters.temperature = value;
         parameters.mac = this.mac;
         this.log.debug("CH | Setting targetTemperature");
-        this.updateDevice(
-            parameters,
-            function(error, res_data) {
+        this.updateDevice(parameters,
+            function (error, res_data) {
                 if (res_data.status != "ok") {
-                    this.log.warn(
-                        "CH | Error setting targetTemperature: %s",
-                        res_data.status
-                    );
+                    this.log.warn("CH | Error setting targetTemperature: %s", res_data.status);
                     callback(error);
                 } else {
                     this.log("CH | Set targetTemperature to: %s", value);
@@ -232,7 +206,7 @@ Boiler.prototype = {
         );
     },
 
-    getServices: function() {
+    getServices: function () {
         this.informationService = new Service.AccessoryInformation();
         this.informationService
             .setCharacteristic(Characteristic.Manufacturer, this.manufacturer)
