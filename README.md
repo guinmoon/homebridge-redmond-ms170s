@@ -1,4 +1,4 @@
-# homebridge-remond-ms170s
+# homebridge-redmond-ms170s
 
 #### Homebridge plugin to control a Redmond RK-MS170S Kettle
 
@@ -15,7 +15,7 @@
     {
       "accessory": "ms170s",
       "name": "Kettle",
-      "mac": "C8:54:A9:29:1B:7F",
+      "mac": "C8:54:A9:29:1B:8A",
       "chMin": 40,
       "chMax": 100,
       "minStep": 5
