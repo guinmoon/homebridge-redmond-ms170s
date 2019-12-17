@@ -5,7 +5,7 @@
 ## Installation
 
 1. Install [homebridge](https://github.com/nfarina/homebridge#installation-details)
-2. Install this plugin: `npm install -g homebridge-remond-ms170s`
+2. Install this plugin: `npm install -g https://github.com/guinmoon/homebridge-remond-ms170s`
 3. Update your `config.json` file (See below).
 
 ## Configuration example
