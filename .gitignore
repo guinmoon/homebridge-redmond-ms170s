@@ -1,4 +1,0 @@
-/node-modules
-*.workspace
-.gitignore
-package-lock.json
