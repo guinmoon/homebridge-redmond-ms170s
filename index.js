@@ -33,10 +33,6 @@ function Boiler(log, config) {
     this.currentTemperature = 0;
     this.targetTemperature = 0;
 
-    // this.latestCurrentHeatingCoolingState = 0;
-    // this.latestTargetHeatingCoolingState = 0;
-    // this.latestCurrentTemperature = 10;
-    // this.latestTargetTemperature = 0;
 }
 
 Boiler.prototype = {
@@ -53,7 +49,6 @@ Boiler.prototype = {
         res_data.currentTemperature = this.currentTemperature;
         res_data.targetTemperature = this.targetTemperature;
         if (parameters.action == "status") {
-            console.log(this.latestCurrentTemperature);
             callback(error, res_data);
             this._ms170sRequest(
                 parameters,
