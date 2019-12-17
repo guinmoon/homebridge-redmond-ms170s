@@ -4,7 +4,7 @@
   "description": "Homebridge plugin for a Redmond RK-MS170S Kettle",
   "main": "index.js",
   "dependencies": {
-    "noble": "^1.9.1"
+    "noble": "^1.9.0"
   },
   "engines": {
     "homebridge": ">=0.4.48",
@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/guinmoon/homebridge-remond-ms170s.git"
+    "url": "git+https://github.com/guinmoon/homebridge-redmond-ms170s.git"
   },
   "keywords": [
     "homebridge-plugin"
