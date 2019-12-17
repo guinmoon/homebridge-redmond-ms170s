@@ -17,7 +17,7 @@ function Boiler(log, config) {
     this.log = log;
     this.name = config.name;
     this.manufacturer = config.manufacturer || packageJson.author.name;
-    this.serial = config.serial || "00000";
+    this.serial = config.serial || "00000000000";
     this.model = config.model || packageJson.name;
     this.firmware = config.firmware || packageJson.version;
 
