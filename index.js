@@ -49,72 +49,52 @@ Kettle.prototype = {
         res_data.targetHeatingCoolingState = this.targetHeatingCoolingState;
         res_data.currentTemperature = this.currentTemperature;
         res_data.targetTemperature = this.targetTemperature;
-        if (parameters.action == "status") {
-            callback(error, res_data);
-            this._ms170sRequest(
-                parameters,
-                function (error, responseBody) {
-                    console.log(responseBody);
-                    this.updateValues(responseBody);
-                }.bind(this)
-            );
-        }
-        if (
-            parameters.action == "off" ||
-            parameters.action == "boil" ||
-            parameters.action == "heat"
-        ) {
-            callback(error, res_data);
-            this._ms170sRequest(
-                parameters,
-                function (error, responseBody) {
-                    if (responseBody.status == "ok") {
+        callback(error, res_data);
+        this._ms170sRequest(parameters,
+            function (error, responseBody) {
+                //console.log(responseBody);
+                if (responseBody.status == "ok") {
+                    if(parameters.action!="status")
                         responseBody.currentHeatingCoolingState = 1;
-                        if (parameters.action == "off")
-                            responseBody.currentHeatingCoolingState = 0;
-                        if (parameters.action == "boil")
-                            responseBody.targetTemperature = 100;
-                        this.updateValues(responseBody);
-                    }
-                }.bind(this)
-            );
-        }
+                    if (parameters.action == "off")
+                        responseBody.currentHeatingCoolingState = 0;
+                    if (parameters.action == "boil")
+                        responseBody.targetTemperature = 100;
+                    this.updateValues(responseBody);
+                }
+            }.bind(this)
+        );
     },
 
     _ms170sRequest: function (parameters, callback) {
         this.log.debug(parameters);
-        var res_data = {};
         error = undefined;
         if (parameters.action == "status") {
             ms170s.ms170s_run(parameters, _ms170sEmitter);
             _ms170sEmitter.on("data_ok", function (data) {
-                res_data = data;
-                if (res_data.currentHeatingCoolingState == 1 && res_data.targetTemperature == "none")
-                    res_data.targetTemperature = 100; //Boil mode
+                if (data.currentHeatingCoolingState == 1 && data.targetTemperature == "none")
+                    data.targetTemperature = 100; //Boil mode
                 _ms170sEmitter.removeAllListeners();
-                callback(error, res_data);
+                callback(error, data);
             });
         }
         if (parameters.action == "off" || parameters.action == "boil") {
             ms170s.ms170s_run(parameters, _ms170sEmitter);
             _ms170sEmitter.on("data_ok", function (data) {
-                res_data = data;
                 _ms170sEmitter.removeAllListeners();
-                callback(error, res_data);
+                callback(error, data);
             });
         }
         if (parameters.action == "heat") {
             parameters.action = "off";
             ms170s.ms170s_run(parameters, _ms170sEmitter);
             _ms170sEmitter.on("data_ok", function (data) {
-                res_data = data;
                 _ms170sEmitter.removeAllListeners();
                 parameters.action = "heat";
                 ms170s.ms170s_run(parameters, _ms170sEmitter);
                 _ms170sEmitter.on("data_ok", function (data) {
-                    res_data = data;
                     _ms170sEmitter.removeAllListeners();
-                    callback(error, res_data);
+                    callback(error, data);
                 });
             });
         }
@@ -125,19 +105,19 @@ Kettle.prototype = {
         this.chService
             .getCharacteristic(Characteristic.TargetTemperature)
             .updateValue(responseBody.targetTemperature);
-        this.log("CH | Updated TargetTemperature to: %s",responseBody.targetTemperature);
+        this.log("CH | Updated TargetTemperature to: %s", responseBody.targetTemperature);
         this.chService
             .getCharacteristic(Characteristic.CurrentTemperature)
             .updateValue(responseBody.currentTemperature);
-        this.log("CH | Updated CurrentTemperature to: %s",responseBody.currentTemperature);
+        this.log("CH | Updated CurrentTemperature to: %s", responseBody.currentTemperature);
         this.chService
             .getCharacteristic(Characteristic.TargetHeatingCoolingState)
             .updateValue(responseBody.targetHeatingCoolingState);
-        this.log("CH | Updated TargetHeatingCoolingState to: %s",responseBody.targetHeatingCoolingState);
+        this.log("CH | Updated TargetHeatingCoolingState to: %s", responseBody.targetHeatingCoolingState);
         this.chService
             .getCharacteristic(Characteristic.CurrentHeatingCoolingState)
             .updateValue(responseBody.currentHeatingCoolingState);
-        this.log("CH | Updated CurrentHeatingCoolingState to: %s",responseBody.currentHeatingCoolingState);
+        this.log("CH | Updated CurrentHeatingCoolingState to: %s", responseBody.currentHeatingCoolingState);
     },
 
     _getStatus: function (callback) {
