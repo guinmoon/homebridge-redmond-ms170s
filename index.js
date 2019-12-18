@@ -36,6 +36,8 @@ function Kettle(log, config) {
     this.pollInterval = config.pollInterval || 4000;
     this.pollingWhenOn = config.pollingWhenOn || false;
     this.pollingEnabled = false;
+
+    this.pollingCounter = 0;
 }
 
 Kettle.prototype = {
@@ -66,6 +68,7 @@ Kettle.prototype = {
                         responseBody.targetTemperature = 100;
                     if (parameters.action == "boil" || parameters.action == "heat") {
                         if (this.pollingWhenOn) {
+                            this.pollingCounter = 0;
                             this.pollingEnabled = true;
                         }
                     }
@@ -161,7 +164,7 @@ Kettle.prototype = {
         parameters.mac = this.mac;
         this.log.debug("CH | Setting targetHeatingCoolingState");
         this.deviceRequest(parameters,
-            function (error, res_data) {               
+            function (error, res_data) {
                 if (res_data.status != "ok") {
                     this.log.warn("CH | Error setting targetHeatingCoolingState: %s", res_data.status);
                     callback(error);
@@ -233,17 +236,19 @@ Kettle.prototype = {
 
         setInterval(
             function () {
-                if (this.pollingEnabled) {
+                if (this.pollingEnabled && this.pollingCounter>0) {
                     this.log.debug("******Polling*****");
                     var parameters = {};
                     parameters.action = "status";
                     parameters.mac = this.mac;
                     this.deviceRequest(parameters, function () {
-
+                        
                     });
                 }
-            }.bind(this), this.pollInterval
-        );
+                this.pollingCounter++;
+            }.bind(this),
+            this.pollInterval);
+
         return services;
     }
 };
