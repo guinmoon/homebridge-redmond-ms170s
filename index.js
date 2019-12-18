@@ -33,7 +33,7 @@ function Kettle(log, config) {
     this.currentTemperature = 0;
     this.targetTemperature = 0;
 
-    this.pollInterval = config.pollInterval || 2000;
+    this.pollInterval = config.pollInterval || 4000;
     this.pollingWhenOn = config.pollingWhenOn || false;
     this.pollingEnabled = false;
 }
