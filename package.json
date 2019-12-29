@@ -1,6 +1,6 @@
 {
   "name": "homebridge-redmond-ms170s",
-  "version": "0.1.0",
+  "version": "0.1.3",
   "description": "Homebridge plugin for a Redmond RK-MS170S Kettle",
   "main": "index.js",
   "dependencies": {
