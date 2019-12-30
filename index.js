@@ -117,19 +117,16 @@ Kettle.prototype = {
         this.chService
             .getCharacteristic(Characteristic.TargetTemperature)
             .updateValue(responseBody.targetTemperature);
-        this.log("CH | Updated TargetTemperature to: %s", responseBody.targetTemperature);
         this.chService
             .getCharacteristic(Characteristic.CurrentTemperature)
-            .updateValue(responseBody.currentTemperature);
-        this.log("CH | Updated CurrentTemperature to: %s", responseBody.currentTemperature);
+            .updateValue(responseBody.currentTemperature);       
         this.chService
             .getCharacteristic(Characteristic.TargetHeatingCoolingState)
-            .updateValue(responseBody.targetHeatingCoolingState);
-        this.log("CH | Updated TargetHeatingCoolingState to: %s", responseBody.targetHeatingCoolingState);
+            .updateValue(responseBody.targetHeatingCoolingState);       
         this.chService
             .getCharacteristic(Characteristic.CurrentHeatingCoolingState)
             .updateValue(responseBody.currentHeatingCoolingState);
-        this.log("CH | Updated CurrentHeatingCoolingState to: %s", responseBody.currentHeatingCoolingState);
+        this.log("TT: %s; CT: %s; THCS: %s; CHCS: %s;", responseBody.targetTemperature, responseBody.currentTemperature, responseBody.targetHeatingCoolingState, responseBody.currentHeatingCoolingState)
     },
 
     _getStatus: function (callback) {
@@ -236,13 +233,13 @@ Kettle.prototype = {
 
         setInterval(
             function () {
-                if (this.pollingEnabled && this.pollingCounter>0) {
+                if (this.pollingEnabled && this.pollingCounter > 0) {
                     this.log.debug("******Polling*****");
                     var parameters = {};
                     parameters.action = "status";
                     parameters.mac = this.mac;
                     this.deviceRequest(parameters, function () {
-                        
+
                     });
                 }
                 this.pollingCounter++;
