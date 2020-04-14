@@ -2,6 +2,8 @@
 
 #### Homebridge plugin to control a Redmond RK-MS170S Kettle
 
+### The plugin may not work correctly on the built-in bluetooth module and on raspberry pi and nodejs of version above 8
+
 ## Installation
 
 1. Install [homebridge](https://github.com/nfarina/homebridge#installation-details)
